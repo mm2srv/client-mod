@@ -11,8 +11,9 @@ include $(PWD)/config.mk
 
 # Define common variables.
 NAME := $(shell basename $(PWD))
-OUT := $(PWD)/deploy
+DEPLOY := $(PWD)/deploy
 SD_OUT := atmosphere/contents/$(PROGRAM_ID)/exefs
+OUT := $(DEPLOY)/$(SD_OUT)
 
 
 # Set load kind specific variables.

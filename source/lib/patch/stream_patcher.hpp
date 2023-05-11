@@ -2,6 +2,7 @@
 
 #include "patcher_impl.hpp"
 #include "armv8.hpp"
+#include <cstring>
 
 namespace exl::patch {
     
@@ -48,6 +49,11 @@ namespace exl::patch {
             At<T>(m_Current) = v;
 
             m_Current += sizeof(T);
+        }
+
+        inline void Write(const void* v, size_t size) {
+            std::memcpy(reinterpret_cast<std::byte*>(RwFromAddr(m_Current)), v, size);
+            m_Current += size;
         }
 
         /* Flush current data then move to a new address. */

@@ -55,4 +55,11 @@ namespace nn::fs {
         TODO: ?
     */
     Result RenameDirectory(char const*, char const*);
+
+    /*
+        Gets the entry type of the given path.
+        out: output pointer to write the entry type.
+        path: path to check
+    */
+    Result GetEntryType(DirectoryEntryType* out, char const* path);
 }

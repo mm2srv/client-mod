@@ -8,7 +8,7 @@ OUT_NPDM=${OUT}/main.npdm
 rm -rf ${OUT}
 
 # Create out directory.
-mkdir ${OUT}
+mkdir -p ${OUT}
 
 # Copy build into out
 mv ${NAME}.nso ${OUT_NSO}
@@ -18,3 +18,5 @@ mv ${NAME}.npdm ${OUT_NPDM}
 if [ ! -z $ELF_EXTRACT ]; then
     cp "$NAME.elf" "$ELF_EXTRACT"
 fi
+
+(cd "$DEPLOY" && zip -r deploy.zip .)

@@ -23,7 +23,7 @@ namespace exl::armv8::inst {
     static_assert(StrRegisterImmediate(reg::X4, reg::X5).Value()        == 0xF90000A4, "");
     static_assert(StrRegisterImmediate(reg::X6, reg::X7).Value()        == 0xF90000E6, "");
     static_assert(StrRegisterImmediate(reg::X8, reg::X9).Value()        == 0xF9000128, "");
-    static_assert(StrRegisterImmediate(reg::X10, reg::X11, 1).Value()  == 0xF900056A, "");
+    static_assert(StrRegisterImmediate(reg::X10, reg::X11, 1).Value()   == 0xF900056A, "");
     static_assert(StrRegisterImmediate(reg::X12, reg::X13, 2).Value()   == 0xF90009AC, "");
     static_assert(StrRegisterImmediate(reg::X14, reg::X15, 4).Value()   == 0xF90011EE, "");
     static_assert(StrRegisterImmediate(reg::W16, reg::X17, 20).Value()  == 0xB9005230, "");
