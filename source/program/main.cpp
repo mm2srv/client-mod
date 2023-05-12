@@ -3,6 +3,9 @@
 #include <string>
 #include "util/file_handle.hpp"
 
+#include "nlohmann/json.hpp"
+using json = nlohmann::json;
+
 namespace inst = exl::armv8::inst;
 namespace reg = exl::armv8::reg;
 
@@ -23,11 +26,16 @@ static bool FileExists(const char* path) {
 }
 
 /* File path to read the token from. */
-static constexpr char s_TokenPath[] = "sd:/ocw-token.txt";
-static constexpr char s_Domain[] = "server.opencourse.world";
+static constexpr char s_ConfigPath[] = "sd:/ocw-config.json";
 
-static constexpr size_t s_MaxTokenSize = 99;
-static std::array<char, s_MaxTokenSize + 1> s_TokenBuffer {};
+static constexpr size_t s_MaxJsonSize = 2048;
+static std::array<char, s_MaxJsonSize> s_JsonBuffer {};
+
+static constexpr size_t s_MaxDomainPatchBufferSize = 29;
+static std::array<char, s_MaxDomainPatchBufferSize> s_DomainPatchBuffer {};
+
+static constexpr size_t s_TokenSize = 22;
+static std::array<char, s_TokenSize + 1> s_TokenPatchBuffer {};
 
 void HeaderSnprintf(char* buffer, size_t bufferLength, const char* format, const char* path, const char* host, const char* key, const char* protocol) {
     snprintf(buffer, bufferLength,
@@ -43,7 +51,7 @@ void HeaderSnprintf(char* buffer, size_t bufferLength, const char* format, const
         host,
         key,
         protocol,
-        s_TokenBuffer.data()
+        s_TokenPatchBuffer.data()
     );
 }
 
@@ -54,31 +62,62 @@ extern "C" void exl_main(void* x0, void* x1) {
     /* Log line buffer. */
     char buf[500];
 
-    LOG("OCW: start applying patches");
+    LOG("OCW: reading sdcard://ocw-config.json");
     
     /* Mount the SD card, this must succeeed. */
     R_ABORT_UNLESS(nn::fs::MountSdCardForDebug("sd"));
     
     /* Do nothing if the token is missing. */
-    if(!FileExists(s_TokenPath)) {
-        LOG("OCW: Token file missing, skipping patching...");
+    if(!FileExists(s_ConfigPath)) {
+        LOG("OCW: sdcard://ocw-config.json file missing, abort..");
+        EXL_ABORT(0x420);
         return;
     }
 
-    /* Open token file and validate it's size. */
-    util::FileHandle handle(s_TokenPath, nn::fs::OpenMode_Read);
+    /* Open config file and validate it's size. */
+    util::FileHandle handle(s_ConfigPath, nn::fs::OpenMode_Read);
     auto fileSize = handle.GetSize();
-    if(fileSize > s_MaxTokenSize) {
-        LOG("OCW: Token abnormally large, skipping patching...");
+    if(fileSize > s_MaxJsonSize) {
+        LOG("OCW: config abnormally large, abort...");
+        EXL_ABORT(0x420);
         return;
     }
+
+    LOG("OCW: parsing sdcard://ocw-config.json");
 
     /* Read entire token file. */
-    handle.Read(std::span {s_TokenBuffer.begin(), s_TokenBuffer.begin() + fileSize});
+    handle.Read(std::span {s_JsonBuffer.begin(), s_JsonBuffer.begin() + fileSize});
+    json ocw_config = json::parse(s_JsonBuffer.begin(), s_JsonBuffer.end());
 
+    if (ocw_config.contains("domain") != true) {
+        LOG("OCW: domain missing, abort...");
+        EXL_ABORT(0x420);
+    }
+    std::string _domainValue = ocw_config["domain"].get<std::string>();
+    if (_domainValue.length() > s_MaxDomainPatchBufferSize) {
+        LOG("OCW: domain is too long, abort...");
+        EXL_ABORT(0x420);
+        return;
+    }
+    std::copy(_domainValue.begin(), _domainValue.end(), s_DomainPatchBuffer.data());
+
+    if (ocw_config.contains("token") != true) {
+        LOG("OCW: token missing, abort...");
+        EXL_ABORT(0x420);
+    }
+    std::string _tokenValue = ocw_config["token"].get<std::string>();
+    if (_tokenValue.length() != s_TokenSize) {
+        LOG("OCW: token invalid length, abort...");
+        EXL_ABORT(0x420);
+        return;
+    }
+    std::copy(_tokenValue.begin(), _tokenValue.end(), s_TokenPatchBuffer.data());
+
+
+    LOG("OCW: applying patches");
     /* Patch in our domain. */
     exl::patch::CodePatcher p(0x22cc307);
-    p.Write(&s_Domain, sizeof(s_Domain));
+    p.Write(s_DomainPatchBuffer.data(), s_MaxDomainPatchBufferSize);
 
     /* Hook snprintf call that builds the HTTP headers for requests to place in the token. */
     p.Seek(0xAF570);
@@ -125,11 +164,11 @@ extern "C" void exl_main(void* x0, void* x1) {
     p.Seek(0x0002F548);
     p.WriteInst(inst::Nop());
     
+    /* Stub EnsureNetworkServiceAccountAvailable, returning always zero. */
     p.Seek(0x0060E7A4);
     p.WriteInst(inst::Movz(reg::W0, 0));
 
-    LOG("OCW: finish applying patches");
-    //LOG("OCW: Token: %s", s_TokenBuffer.begin());
+    LOG("OCW: finished");
 }
 
 extern "C" NORETURN void exl_exception_entry() {
