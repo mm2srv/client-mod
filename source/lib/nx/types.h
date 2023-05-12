@@ -64,6 +64,3 @@ typedef void (*VoidFn)(void);       ///< Function without arguments nor return v
 #else
 #define NX_CONSTEXPR NX_INLINE
 #endif
-
-/// Invalid handle.
-#define INVALID_HANDLE ((Handle) 0)

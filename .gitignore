@@ -1,7 +1,7 @@
-.vscode/*
-build/*
-out/*
-deploy/*
+.vscode
+build
+out
+deploy
 
 *.elf
 *.nso

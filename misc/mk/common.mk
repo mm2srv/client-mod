@@ -24,7 +24,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 export TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 ROOT_SOURCE	:=	$(TOPDIR)/source
-MODULES		:=	$(shell find $(ROOT_SOURCE) -mindepth 1 -maxdepth 1 -type d)
+MODULES		:=	$(shell find $(ROOT_SOURCE) -mindepth 1 -maxdepth 1 -type d -not -path "*/nn")
 SOURCES		:=	$(foreach module,$(MODULES),$(shell find $(module) -type d))
 SOURCES		:= 	$(foreach source,$(SOURCES),$(source:$(TOPDIR)/%=%)/)
 
@@ -36,28 +36,28 @@ INCLUDES	:=	include
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIC -fvisibility=hidden
 
-CFLAGS	:=	-g -Wall -Werror -O3 \
+CFLAGS	:=	-g -Wall -O3 \
 			-ffunction-sections \
 			-fdata-sections \
 			$(ARCH) \
 			$(DEFINES)
 
-CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -D__RTLD_6XX__
+CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -D__RTLD_6XX__ -DCLOCK_REALTIME=0 -DSEAD_DEBUG
 
-CFLAGS	+= $(EXL_CFLAGS) -I"$(DEVKITPRO)/libnx/include" -I$(ROOT_SOURCE) $(addprefix -I,$(MODULES))
+CFLAGS	+= $(EXL_CFLAGS) $(addprefix -I,$(MODULES))
 
-CXXFLAGS	:= $(CFLAGS) $(EXL_CXXFLAGS) -fno-rtti -fno-exceptions -fno-asynchronous-unwind-tables -fno-unwind-tables -std=gnu++2b
+CXXFLAGS	:= $(CFLAGS) $(EXL_CXXFLAGS) -I"$(ROOT_SOURCE)/sead" -I"$(ROOT_SOURCE)/lib" -I"$(DEVKITPRO)/devkitA64/aarch64-none-elf/include/c++" -I"$(DEVKITPRO)/devkitA64/aarch64-none-elf/include/c++/aarch64-none-elf" -I"$(DEVKITPRO)/devkitA64/aarch64-none-elf/include/c++/aarch64-none-elf/include" -I"$(DEVKITPRO)/libnx/include" -I"$(DEVKITPRO)/portlibs/switch/include" -fno-rtti -fno-exceptions -fno-asynchronous-unwind-tables -fno-unwind-tables -std=gnu++2b
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	:=  -specs=$(SPECS_PATH)/$(SPECS_NAME) -g $(ARCH) -Wl,-Map,$(notdir $*.map) -nostartfiles
 
-LIBS	:=
+LIBS	:= -lnx
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:=
+LIBDIRS	:= $(DEVKITPRO)/portlibs/switch $(DEVKITPRO)/libnx
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -125,7 +125,6 @@ all: $(BUILD)
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(MK_PATH)/common.mk
-	@$(SHELL) $(SCRIPTS_PATH)/post-build.sh
 
 #---------------------------------------------------------------------------------
 clean:

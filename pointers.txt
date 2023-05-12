@@ -1,0 +1,24 @@
+Likely offset from 3.0.1: 0x60
+
+Lp_Sys_DbgTextWriter_draw2D: 0x0062E1A0
+Lp_Sys_DbgTextWriter_drawText: 0x0062DCC0
+DeathSignal: 0x015b4810
+BlockModelScale: 0x01385B00
+BlockModelPosition: 0x01385EC0
+
+Likely did not offset from 3.0.1
+DbgTextWriter strUtf8->m_Vtbl: 0x027B8140
+DbgTextWriter strUtf16->m_Vtbl: 0x027E95F8
+
+Heap Pointers:
+Title screen level data: 0x5CD5FE0 noexes 0x5CC6FE0 ryujinx 0xF000 difference
+Data ID: 0x52D69B0 ryujinx
+
+Logging:
+FUN_71002832a0
+
+Called when a new level is opened:
+0x7101792850
+
+Interesting function: FUN_71000e9ba0
+- Possibly byte and date handling

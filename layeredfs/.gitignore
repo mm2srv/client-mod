@@ -1,0 +1,6 @@
+**/*.szs
+romfs_original
+
+# Remove specific folders
+romfs/Message/CommonMsg_USen
+romfs/Message/layoutMsg_USen

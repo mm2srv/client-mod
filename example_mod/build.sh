@@ -1,0 +1,1 @@
+emcc -Os -sFILESYSTEM=0 -sERROR_ON_UNDEFINED_SYMBOLS=0 --no-entry main.cpp -o main.wasm

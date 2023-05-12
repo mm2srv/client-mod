@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include <common.hpp>
 #include <utility>
 #include <new>
 #include <memory>

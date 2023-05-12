@@ -1,0 +1,30 @@
+RomFS:
+	Extract using Switch Toolbox for .szs and Kuriimu for .msbt. Extract all using ST, modify chosen file using Kuriimu, repack using ST
+	Patching can be performed with `installer createpatch oldfile.szs newfile.szs`, installer is at https://github.com/mm2srv/mod-installer, patch will be located at `newfile.szs.patch`
+	Use `grep -lar "string"` to find strings
+	* Rename "Multiplayer Versus matches played" to "Boos", boos are otherwise not available in game
+		Message/LayoutMsg_USen.szs -> Nwk_CourseListWindow_00.msbt -> L_CourseDetail_00-T_Battle_00
+			"Multiplayer Versus matches played" -> "Boos"
+	* Tags (Message/LayoutMsg_USen.szs -> Cmn_TagWindow_00.msbt, Message/LayoutMsg_USen.szs -> Nwk_CourseListWindow_00.msbt, Message/LayoutMsg_USen.szs -> Nwk_SortWindow_00.msbt)
+		* "Short and sweet" -> "Traditional"
+		* "Auto-Mario" -> "Puzzle"
+		* "Speedrun" -> "Speedrun"
+		* "Autoscroll" -> "Kaizo"
+		* "Puzzle-solving" -> "Auto"
+		* "Standard" -> "One Trick"
+		* "Multiplayer Versus" -> "Multiplayer"
+		* "Themed" -> "Troll"
+		* "Music" -> "Music"
+		* "Art" -> "Art"
+		* "Technical" -> "Precision"
+		* "Shooter" -> "Experiments"
+		* "Boss battle" -> "Gimmick"
+		* "Single player" -> "Unlisted"
+		* "Link" -> "Suffering"
+ExeFS:
+	Done in exlaunch now
+	* Change server IP
+	* Auth token
+	* Skip GetNetworkServiceAccountId
+	* Skip IsNetworkServiceAccountAvailable
+	* Skip LoadNetworkServiceAccountIdTokenCache

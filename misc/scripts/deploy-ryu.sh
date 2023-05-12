@@ -2,7 +2,7 @@
 set -e
 
 # Verify the path is set.
-if [ -z "${RYU_PATH}" ]; then
+if [[ -z "${RYU_PATH}" ]]; then
     echo "RYU_PATH appears to not be set! Check your exlaunch.sh?"
 fi
 
@@ -10,7 +10,7 @@ fi
 export MODS_PATH=${RYU_PATH}/mods/contents/${PROGRAM_ID}/mods
 
 # Ensure directory exists.
-mkdir -p ${MODS_PATH}/exefs;
+mkdir -p ${MODS_PATH}/exefs
 
 # Copy over files.
 cp ${OUT}/* ${MODS_PATH}/exefs
