@@ -19,4 +19,5 @@ if [ ! -z $ELF_EXTRACT ]; then
     cp "$NAME.elf" "$ELF_EXTRACT"
 fi
 
-(cd "$DEPLOY" && zip -r deploy.zip .)
+(cd "$DEPLOY" && zip -r ocw-mod-atmosphere.zip atmosphere)
+(cd "$DEPLOY" && cp -r atmosphere/contents/01009B90006DC000 opencourseworld-mod && zip -r ocw-mod-ryujinx.zip opencourseworld-mod)

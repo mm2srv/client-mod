@@ -26,7 +26,7 @@ static bool FileExists(const char* path) {
         return type == nn::fs::DirectoryEntryType_File;
 }
 
-const char MOD_VERSION[] = "0.2";
+const char MOD_VERSION[] = "0.3";
 
 /* File path to read the token from. */
 static constexpr char s_ConfigPath[] = "sd:/ocw-config.json";
